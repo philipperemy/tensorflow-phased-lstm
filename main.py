@@ -4,6 +4,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.python.ops.rnn import dynamic_rnn
 
+from constants import BATCH_SIZE, SEQUENCE_LENGTH
 from data_reader import next_batch
 from helpers import FileLogger
 from ml_utils import create_adam_optimizer
@@ -11,20 +12,19 @@ from ml_utils import create_convolution_variable
 from phased_lstm import PhasedLSTMCell
 
 
-def get_placeholders(batch_size):
-    return tf.placeholder('float32', [batch_size, 16, 1]), tf.placeholder('float32', [batch_size, 1])
+def get_placeholders():
+    return tf.placeholder('float32', [BATCH_SIZE, SEQUENCE_LENGTH, 1]), tf.placeholder('float32', [BATCH_SIZE, 1])
 
 
-def main():
-    batch_size = 4
+def main(init_session=None, placeholder_def_func=get_placeholders):
+    batch_size = BATCH_SIZE
     hidden_size = 16
     learning_rate = 3e-4
     momentum = 0.9
 
     file_logger = FileLogger('log.tsv', ['step', 'training_loss', 'benchmark_loss'])
 
-    x, y = get_placeholders(batch_size)
-
+    x, y = placeholder_def_func()
     lstm = PhasedLSTMCell(hidden_size)
 
     initial_state = (tf.random_normal([batch_size, hidden_size], stddev=0.1),
@@ -43,7 +43,10 @@ def main():
     trainable = tf.trainable_variables()
     grad_update = optimizer.minimize(loss, var_list=trainable)
 
-    sess = tf.Session(config=tf.ConfigProto(log_device_placement=False))
+    if init_session is not None:
+        sess = init_session
+    else:
+        sess = tf.Session(config=tf.ConfigProto(log_device_placement=False))
     init = tf.global_variables_initializer()
     sess.run(init)
 
