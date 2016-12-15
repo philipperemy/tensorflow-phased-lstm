@@ -9,7 +9,7 @@ def next_batch(bs):
     """
     x = np.array(uniform(size=(bs, 16, 1)), dtype='float32')
     y = np.mean(x, axis=1)
-    return np.array(x, dtype='float32'), np.array(np.reshape(y, (bs, 1, 1)), dtype='float32')
+    return np.array(x, dtype='float32'), np.array(np.reshape(y, (bs, 1)), dtype='float32')
 
 
 if __name__ == '__main__':

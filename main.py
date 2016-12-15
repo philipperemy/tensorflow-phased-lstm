@@ -7,19 +7,23 @@ from tensorflow.python.ops.rnn import dynamic_rnn
 from data_reader import next_batch
 from helpers import FileLogger
 from ml_utils import create_adam_optimizer
+from ml_utils import create_convolution_variable
 from phased_lstm import PhasedLSTMCell
+
+
+def get_placeholders(batch_size):
+    return tf.placeholder('float32', [batch_size, 16, 1]), tf.placeholder('float32', [batch_size, 1])
 
 
 def main():
     batch_size = 4
-    hidden_size = 32
-    learning_rate = 1e-3
+    hidden_size = 16
+    learning_rate = 3e-4
     momentum = 0.9
 
     file_logger = FileLogger('log.tsv', ['step', 'training_loss', 'benchmark_loss'])
 
-    x = tf.placeholder(tf.float32, (None, 16, 1))
-    y = tf.placeholder(tf.float32, (None, 1, 1))
+    x, y = get_placeholders(batch_size)
 
     lstm = PhasedLSTMCell(hidden_size)
 
@@ -27,9 +31,14 @@ def main():
                      tf.random_normal([batch_size, hidden_size], stddev=0.1))
 
     outputs, state = dynamic_rnn(lstm, x, initial_state=initial_state, dtype=tf.float32)
-    _, final_hidden = state
+    rnn_out = tf.squeeze(tf.slice(outputs, begin=[0, tf.shape(outputs)[1] - 1, 0], size=[-1, -1, -1]))
+    # _, final_hidden = state
 
-    loss = tf.reduce_mean(tf.square(tf.sub(outputs, y)))
+    fc0_w = create_convolution_variable('fc0_w', [hidden_size, 1])
+    fc0_b = tf.get_variable('fc0_b', [1])
+    out = tf.matmul(rnn_out, fc0_w) + fc0_b
+
+    loss = tf.reduce_mean(tf.square(tf.sub(out, y)))
     optimizer = create_adam_optimizer(learning_rate, momentum)
     trainable = tf.trainable_variables()
     grad_update = optimizer.minimize(loss, var_list=trainable)
@@ -42,9 +51,7 @@ def main():
     benchmark_d = collections.deque(maxlen=10)
     for step in range(1, int(1e9)):
         x_s, y_s = next_batch(batch_size)
-        loss_value, _, pred_value = sess.run([loss, grad_update, outputs],
-                                             feed_dict={x: x_s, y: y_s})
-
+        loss_value, _, pred_value = sess.run([loss, grad_update, out], feed_dict={x: x_s, y: y_s})
         # The mean converges to 0.5 for IID U(0,1) random variables. Good benchmark.
         benchmark_d.append(np.mean(np.square(0.5 - y_s)))
         d.append(loss_value)
