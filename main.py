@@ -50,9 +50,6 @@ def main(init_session=None, placeholder_def_func=get_placeholders):
     init = tf.global_variables_initializer()
     sess.run(init)
 
-    # TODO remove it.
-    # lstm.__call__(x[:, 0, :], initial_state, scope=None)
-
     d = collections.deque(maxlen=10)
     benchmark_d = collections.deque(maxlen=10)
     for step in range(1, int(1e9)):

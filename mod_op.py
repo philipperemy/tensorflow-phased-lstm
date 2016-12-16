@@ -3,6 +3,8 @@ import tensorflow as tf
 from tensorflow.python.framework import ops
 
 
+# http://stackoverflow.com/questions/39048984/tensorflow-how-to-write-op-with-gradient-in-python
+
 def np_mod(x, y):
     return (x % y).astype(np.float32)
 
