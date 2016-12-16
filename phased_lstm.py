@@ -9,19 +9,15 @@ from mod_op import tf_mod
 
 
 def phi(t, s, tau):
-    # return ((t - s) % tau) / tau
-    # mod = t - s
-    # tf.while_loop(tf.greater(mod - tau, 0), body=lambda: mod - tau)
-    # mod += tau
-    # return mod / tau
-    # return tf.mod(t - s, tau) / tau
     return tf_mod(t - s, tau) / tau
 
 
-def time_gate_1(phase, r_on, leak_rate, training_phase, hidden_units):
-    cond_1 = tf.cast(tf.less(phase, 0.5 * r_on), dtype='float32')
+def time_gate_fast(phase, r_on, leak_rate, training_phase, hidden_units):
+    if not training_phase:
+        leak_rate = 1.0
+    cond_1 = tf.cast(tf.less_equal(phase, 0.5 * r_on), dtype='float32')
     cond_2 = tf.cast(tf.logical_and(tf.less(0.5 * r_on, phase), tf.less(phase, r_on)), dtype='float32')
-    cond_3 = tf.cast(tf.greater(phase, r_on), dtype='float32')
+    cond_3 = tf.cast(tf.greater_equal(phase, r_on), dtype='float32')
 
     term_1 = tf.mul(cond_1, 2.0 * phase / r_on)
     term_2 = tf.mul(cond_2, 2.0 - 2.0 * phase / r_on)
@@ -29,7 +25,7 @@ def time_gate_1(phase, r_on, leak_rate, training_phase, hidden_units):
     return term_1 + term_2 + term_3
 
 
-def time_gate_3(phase, r_on, leak_rate, training_phase, hidden_units):
+def time_gate_slow(phase, r_on, leak_rate, training_phase, hidden_units):
     if not training_phase:
         leak_rate = 1.0
     new_phase = []
@@ -41,30 +37,6 @@ def time_gate_3(phase, r_on, leak_rate, training_phase, hidden_units):
                                       lambda: 2.0 - 2.0 * phase[i] / r_on},
                                  default=lambda: leak_rate * phase[i], exclusive=True))
     return tf.pack(new_phase)
-
-
-# return tf.case({tf.less(phase, 0.5 * r_on): lambda: 2.0 * phase / r_on,
-#                tf.logical_and(tf.less(0.5 * r_on, phase), tf.less(phase, r_on)):
-#                    lambda: 2.0 - 2.0 * phase / r_on},
-#               default=lambda: leak_rate * phase, exclusive=True)
-
-
-def time_gate(phase, r_on, leak_rate, training_phase):
-    return tf.cond(phase < 0.5 * r_on, lambda: tf.divide(tf.mul(2, phase), r_on),
-                   lambda: tf.sub(2, tf.divide(tf.mul(2, phase), r_on)))
-
-
-def time_gate_2(phase, r_on, leak_rate, training_phase):
-    if phase < 0.5 * r_on:
-        return 2 * phase / r_on
-    elif 0.5 * r_on < phase < r_on:
-        return 2 - 2 * phase / r_on
-    if not training_phase:
-        return phase
-    return leak_rate * phase
-
-
-# this is going to change with v0.13
 
 
 class PhasedLSTMCell(RNNCell):
@@ -85,11 +57,8 @@ class PhasedLSTMCell(RNNCell):
     def output_size(self):
         return self._num_units
 
-    def extract_time(self, inputs):
-        return 1.0  # TODO: update it
-
     def __call__(self, inputs, state, scope=None):
-        """ Long short-term phased memory cell (P-LSTM)."""
+        """ Phased long short-term memory cell (P-LSTM)."""
         with vs.variable_scope(scope or type(self).__name__):
             # Parameters of gates are concatenated into one multiply for efficiency.
             c_prev, h_prev = state
@@ -105,7 +74,7 @@ class PhasedLSTMCell(RNNCell):
             s = vs.get_variable('s', shape=[self._num_units], dtype=inputs.dtype)
 
             phase = phi(t, s, tau)
-            kappa = time_gate_1(phase, self._r_on, self._leak_rate, self._training_phase, self._num_units)
+            kappa = time_gate_fast(phase, self._r_on, self._leak_rate, self._training_phase, self._num_units)
 
             w_o_peephole = None
             if self._use_peepholes:
