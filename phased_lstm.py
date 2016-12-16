@@ -84,7 +84,7 @@ class PhasedLSTMCell(RNNCell):
                 f += w_f_peephole * c_prev
                 i += w_i_peephole * c_prev
 
-            new_c_tilde = (sigmoid(f) * c_prev + sigmoid(i) * self._activation(j))
+            new_c_tilde = sigmoid(f) * c_prev + sigmoid(i) * self._activation(j)
             new_c = kappa * new_c_tilde + (1 - kappa) * c_prev
 
             if self._use_peepholes:

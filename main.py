@@ -4,7 +4,8 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.python.ops.rnn import dynamic_rnn
 
-from constants import BATCH_SIZE, SEQUENCE_LENGTH, HIDDEN_STATES
+from basic_lstm import BasicLSTMCell
+from constants import *
 from data_reader import next_batch
 from helpers import FileLogger
 from ml_utils import create_adam_optimizer
@@ -13,7 +14,10 @@ from phased_lstm import PhasedLSTMCell
 
 
 def get_placeholders():
-    return tf.placeholder('float32', [BATCH_SIZE, SEQUENCE_LENGTH, 2]), tf.placeholder('float32', [BATCH_SIZE, 1])
+    x_dim = 1
+    if ADD_TIME_INPUTS:
+        x_dim = 2
+    return tf.placeholder('float32', [BATCH_SIZE, SEQUENCE_LENGTH, x_dim]), tf.placeholder('float32', [BATCH_SIZE, 1])
 
 
 def main(init_session=None, placeholder_def_func=get_placeholders):
@@ -25,7 +29,12 @@ def main(init_session=None, placeholder_def_func=get_placeholders):
     file_logger = FileLogger('log.tsv', ['step', 'training_loss', 'benchmark_loss'])
 
     x, y = placeholder_def_func()
-    lstm = PhasedLSTMCell(hidden_size)
+    if ADD_TIME_INPUTS:
+        lstm = PhasedLSTMCell(hidden_size)
+        print('Using PhasedLSTMCell impl.')
+    else:
+        lstm = BasicLSTMCell(hidden_size)
+        print('Using BasicLSTMCell impl.')
 
     initial_state = (tf.random_normal([batch_size, hidden_size], stddev=0.1),
                      tf.random_normal([batch_size, hidden_size], stddev=0.1))
