@@ -7,6 +7,8 @@ from main import main
 
 np.set_printoptions(threshold=np.nan)
 
+SESSION = None
+
 
 def get_placeholders_test():
     np.random.seed(123)
@@ -18,7 +20,9 @@ def get_placeholders_test():
 
 class PhasedLSTMTests(tf.test.TestCase):
     def test_1(self):
+        global SESSION
         with self.test_session() as sess:
+            SESSION = sess
             main(sess, get_placeholders_test)
 
 
