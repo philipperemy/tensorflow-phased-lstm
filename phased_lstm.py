@@ -40,12 +40,11 @@ def time_gate_slow(phase, r_on, leak_rate, training_phase, hidden_units):
 
 
 class PhasedLSTMCell(RNNCell):
-    def __init__(self, num_units, use_peepholes=True, r_on=0.05, training_phase=True,
+    def __init__(self, num_units, use_peepholes=True, training_phase=True,
                  leak_rate=0.001, activation=tanh):
         self._num_units = num_units
         self._activation = activation
         self._use_peepholes = use_peepholes
-        self._r_on = r_on
         self._leak_rate = leak_rate  # only during training
         self._training_phase = training_phase
 
@@ -69,12 +68,13 @@ class PhasedLSTMCell(RNNCell):
             concat = _linear([x, h_prev], 4 * self._num_units, True)
             # i = input_gate, j = new_input, f = forget_gate, o = output_gate
             i, j, f, o = array_ops.split(1, 4, concat)
-            # test.SESSION.run(tf.global_variables_initializer())
+
             tau = vs.get_variable('tau', shape=[self._num_units], dtype=inputs.dtype)
             s = vs.get_variable('s', shape=[self._num_units], dtype=inputs.dtype)
+            r_on = vs.get_variable('r_on', shape=[self._num_units], dtype=inputs.dtype)
 
             phase = phi(t, s, tau)
-            kappa = time_gate_fast(phase, self._r_on, self._leak_rate, self._training_phase, self._num_units)
+            kappa = time_gate_fast(phase, r_on, self._leak_rate, self._training_phase, self._num_units)
 
             w_o_peephole = None
             if self._use_peepholes:
