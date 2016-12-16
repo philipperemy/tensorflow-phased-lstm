@@ -13,7 +13,7 @@ from phased_lstm import PhasedLSTMCell
 
 
 def get_placeholders():
-    return tf.placeholder('float32', [BATCH_SIZE, SEQUENCE_LENGTH, 1]), tf.placeholder('float32', [BATCH_SIZE, 1])
+    return tf.placeholder('float32', [BATCH_SIZE, SEQUENCE_LENGTH, 2]), tf.placeholder('float32', [BATCH_SIZE, 1])
 
 
 def main(init_session=None, placeholder_def_func=get_placeholders):
@@ -50,10 +50,12 @@ def main(init_session=None, placeholder_def_func=get_placeholders):
     init = tf.global_variables_initializer()
     sess.run(init)
 
+    # lstm.__call__(x[:, 0, :], initial_state, scope=None)
+
     d = collections.deque(maxlen=10)
     benchmark_d = collections.deque(maxlen=10)
     for step in range(1, int(1e9)):
-        x_s, y_s, _ = next_batch(batch_size)
+        x_s, y_s = next_batch(batch_size)
         loss_value, _, pred_value = sess.run([loss, grad_update, out], feed_dict={x: x_s, y: y_s})
         # The mean converges to 0.5 for IID U(0,1) random variables. Good benchmark.
         benchmark_d.append(np.mean(np.square(0.5 - y_s)))

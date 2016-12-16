@@ -93,10 +93,13 @@ class PhasedLSTMCell(RNNCell):
         with vs.variable_scope(scope or type(self).__name__):
             # Parameters of gates are concatenated into one multiply for efficiency.
             c_prev, h_prev = state
-            concat = _linear([inputs, h_prev], 4 * self._num_units, True)
+            x = tf.reshape(inputs[:, 0], (-1, 1))
+            t = inputs[:, 1][-1]  # Now we only accept one id. We have a batch so it's a bit more complex.
+            # maybe the information should come from the outside. To be defined later.
+
+            concat = _linear([x, h_prev], 4 * self._num_units, True)
             # i = input_gate, j = new_input, f = forget_gate, o = output_gate
             i, j, f, o = array_ops.split(1, 4, concat)
-            t = self.extract_time(inputs)
             # test.SESSION.run(tf.global_variables_initializer())
             tau = vs.get_variable('tau', shape=[self._num_units], dtype=inputs.dtype)
             s = vs.get_variable('s', shape=[self._num_units], dtype=inputs.dtype)

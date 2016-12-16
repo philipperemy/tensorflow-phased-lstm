@@ -25,7 +25,6 @@ class PhasedLSTMTests(tf.test.TestCase):
             SESSION = sess
             main(sess, get_placeholders_test)
             # debug a forward call to the RNN.
-            # lstm.__call__(x[:, 0, :], initial_state, scope=None)
 
 
 if __name__ == '__main__':

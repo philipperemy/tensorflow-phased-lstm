@@ -12,7 +12,8 @@ def next_batch(bs):
     x = np.array(uniform(size=(bs, SEQUENCE_LENGTH, 1)), dtype='float32')
     y = np.mean(x, axis=1)
     t = np.reshape(np.tile(np.array(range(SEQUENCE_LENGTH)), (bs, 1, 1)), (bs, SEQUENCE_LENGTH, 1))
-    return np.array(x, dtype='float32'), np.array(np.reshape(y, (bs, 1)), dtype='float32'), np.array(t, dtype='float32')
+    inputs = np.squeeze(np.stack([x, t], axis=2))
+    return np.array(inputs, dtype='float32'), np.array(np.reshape(y, (bs, 1)), dtype='float32')
 
 
 if __name__ == '__main__':
