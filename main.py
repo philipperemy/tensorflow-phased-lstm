@@ -4,7 +4,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.python.ops.rnn import dynamic_rnn
 
-from constants import BATCH_SIZE, SEQUENCE_LENGTH
+from constants import BATCH_SIZE, SEQUENCE_LENGTH, HIDDEN_STATES
 from data_reader import next_batch
 from helpers import FileLogger
 from ml_utils import create_adam_optimizer
@@ -18,7 +18,7 @@ def get_placeholders():
 
 def main(init_session=None, placeholder_def_func=get_placeholders):
     batch_size = BATCH_SIZE
-    hidden_size = 16
+    hidden_size = HIDDEN_STATES
     learning_rate = 3e-4
     momentum = 0.9
 
