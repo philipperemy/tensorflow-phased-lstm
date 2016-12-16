@@ -18,6 +18,17 @@ def phi(t, s, tau):
     return tf_mod(t - s, tau) / tau
 
 
+def time_gate_1(phase, r_on, leak_rate, training_phase, hidden_units):
+    cond_1 = tf.cast(tf.less(phase, 0.5 * r_on), dtype='float32')
+    cond_2 = tf.cast(tf.logical_and(tf.less(0.5 * r_on, phase), tf.less(phase, r_on)), dtype='float32')
+    cond_3 = tf.cast(tf.greater(phase, r_on), dtype='float32')
+
+    term_1 = tf.mul(cond_1, 2.0 * phase / r_on)
+    term_2 = tf.mul(cond_2, 2.0 - 2.0 * phase / r_on)
+    term_3 = tf.mul(cond_3, leak_rate * phase)
+    return term_1 + term_2 + term_3
+
+
 def time_gate_3(phase, r_on, leak_rate, training_phase, hidden_units):
     if not training_phase:
         leak_rate = 1.0
@@ -91,7 +102,7 @@ class PhasedLSTMCell(RNNCell):
             s = vs.get_variable('s', shape=[self._num_units], dtype=inputs.dtype)
 
             phase = phi(t, s, tau)
-            kappa = time_gate_3(phase, self._r_on, self._leak_rate, self._training_phase, self._num_units)
+            kappa = time_gate_1(phase, self._r_on, self._leak_rate, self._training_phase, self._num_units)
 
             w_o_peephole = None
             if self._use_peepholes:

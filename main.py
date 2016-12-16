@@ -53,7 +53,7 @@ def main(init_session=None, placeholder_def_func=get_placeholders):
     d = collections.deque(maxlen=10)
     benchmark_d = collections.deque(maxlen=10)
     for step in range(1, int(1e9)):
-        x_s, y_s = next_batch(batch_size)
+        x_s, y_s, _ = next_batch(batch_size)
         loss_value, _, pred_value = sess.run([loss, grad_update, out], feed_dict={x: x_s, y: y_s})
         # The mean converges to 0.5 for IID U(0,1) random variables. Good benchmark.
         benchmark_d.append(np.mean(np.square(0.5 - y_s)))
