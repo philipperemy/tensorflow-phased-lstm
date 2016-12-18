@@ -1,14 +1,39 @@
 import tensorflow as tf
+from tensorflow.python.framework import dtypes
 from tensorflow.python.framework import ops
 from tensorflow.python.ops import array_ops
+from tensorflow.python.ops import init_ops
+from tensorflow.python.ops import random_ops
 from tensorflow.python.ops import variable_scope as vs
 from tensorflow.python.ops.math_ops import sigmoid
 from tensorflow.python.ops.math_ops import tanh
 from tensorflow.python.ops.rnn_cell import RNNCell, _linear
 
 
+def random_exp_initializer(minval=0, maxval=None, seed=None,
+                           dtype=dtypes.float32):
+    '''Returns an initializer that generates tensors with an exponential distribution.
+    Args:
+      minval: A python scalar or a scalar tensor. Lower bound of the range
+        of random values to generate.
+      maxval: A python scalar or a scalar tensor. Upper bound of the range
+        of random values to generate.  Defaults to 1 for float types.
+      seed: A Python integer. Used to create random seeds. See
+        [`set_random_seed`](../../api_docs/python/constant_op.md#set_random_seed)
+        for behavior.
+      dtype: The data type.
+    Returns:
+      An initializer that generates tensors with an exponential distribution.
+    '''
+
+    def _initializer(shape, dtype=dtype, partition_info=None):
+        return tf.exp(random_ops.random_uniform(shape, minval, maxval, dtype, seed=seed))
+
+    return _initializer
+
+
 # Register the gradient for the mod operation. tf.mod() does not have a gradient implemented.
-@ops.RegisterGradient("Mod")
+@ops.RegisterGradient('Mod')
 def _mod_grad(op, grad):
     x, y = op.inputs
     gz = grad
@@ -34,28 +59,16 @@ def time_gate_fast(phase, r_on, leak_rate, training_phase, hidden_units):
     return term_1 + term_2 + term_3
 
 
-def time_gate_slow(phase, r_on, leak_rate, training_phase, hidden_units):
-    if not training_phase:
-        leak_rate = 1.0
-    new_phase = []
-    for i in range(hidden_units):
-        print('Initialize gate {}-th. (total is {}).'.format(i, hidden_units))
-        new_phase.append(tf.case({tf.less(phase[i], 0.5 * r_on):
-                                      lambda: 2.0 * phase[i] / r_on,
-                                  tf.logical_and(tf.less(0.5 * r_on, phase[i]), tf.less(phase[i], r_on)):
-                                      lambda: 2.0 - 2.0 * phase[i] / r_on},
-                                 default=lambda: leak_rate * phase[i], exclusive=True))
-    return tf.pack(new_phase)
-
-
 class PhasedLSTMCell(RNNCell):
     def __init__(self, num_units, use_peepholes=True, training_phase=True,
-                 leak_rate=0.001, activation=tanh):
+                 leak_rate=0.001, r_on_init=0.05, tau_init=6., activation=tanh):
         self._num_units = num_units
         self._activation = activation
         self._use_peepholes = use_peepholes
         self._leak_rate = leak_rate  # only during training
         self._training_phase = training_phase
+        self.r_on_init = r_on_init
+        self.tau_init = tau_init
 
     @property
     def state_size(self):
@@ -70,6 +83,9 @@ class PhasedLSTMCell(RNNCell):
         with vs.variable_scope(scope or type(self).__name__):
             # Parameters of gates are concatenated into one multiply for efficiency.
             c_prev, h_prev = state
+
+            # (batch_size, seq_len, 2)
+            # NB: here we explicitly give t as input.
             x = tf.reshape(inputs[:, 0], (-1, 1))
             t = inputs[:, 1][-1]  # Now we only accept one id. We have a batch so it's a bit more complex.
 
@@ -79,9 +95,16 @@ class PhasedLSTMCell(RNNCell):
             # i = input_gate, j = new_input, f = forget_gate, o = output_gate
             i, j, f, o = array_ops.split(1, 4, concat)
 
-            tau = vs.get_variable('tau', shape=[self._num_units], dtype=inputs.dtype)
-            s = vs.get_variable('s', shape=[self._num_units], dtype=inputs.dtype)
-            r_on = vs.get_variable('r_on', shape=[self._num_units], dtype=inputs.dtype)
+            dtype = inputs.dtype
+            tau = vs.get_variable('tau', shape=[self._num_units],
+                                  initializer=random_exp_initializer(0, self.tau_init), dtype=dtype)
+
+            r_on = vs.get_variable('r_on', shape=[self._num_units],
+                                   initializer=init_ops.constant_initializer(self.r_on_init), dtype=dtype)
+
+            s = vs.get_variable('s', shape=[self._num_units],
+                                initializer=init_ops.random_uniform_initializer(0., tau.initialized_value()),
+                                dtype=dtype)
 
             times = tf.tile(tf.reshape(t, [-1, 1]), [1, self._num_units])
             phase = phi(times, s, tau)
@@ -89,9 +112,9 @@ class PhasedLSTMCell(RNNCell):
 
             w_o_peephole = None
             if self._use_peepholes:
-                w_i_peephole = vs.get_variable('W_I_peephole', shape=[self._num_units], dtype=inputs.dtype)
-                w_f_peephole = vs.get_variable('W_F_peephole', shape=[self._num_units], dtype=inputs.dtype)
-                w_o_peephole = vs.get_variable('W_O_peephole', shape=[self._num_units], dtype=inputs.dtype)
+                w_i_peephole = vs.get_variable('W_I_peephole', shape=[self._num_units], dtype=dtype)
+                w_f_peephole = vs.get_variable('W_F_peephole', shape=[self._num_units], dtype=dtype)
+                w_o_peephole = vs.get_variable('W_O_peephole', shape=[self._num_units], dtype=dtype)
                 f += w_f_peephole * c_prev
                 i += w_i_peephole * c_prev
 
