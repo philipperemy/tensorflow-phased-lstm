@@ -14,16 +14,14 @@ from phased_lstm import PhasedLSTMCell
 
 
 def get_placeholders():
-    x_dim = 1
-    if ADD_TIME_INPUTS:
-        x_dim = 2
-    return tf.placeholder('float32', [BATCH_SIZE, SEQUENCE_LENGTH, x_dim]), tf.placeholder('float32', [BATCH_SIZE, 1])
+    return tf.placeholder('float32', [BATCH_SIZE, SEQUENCE_LENGTH, 2 if ADD_TIME_INPUTS else 1]), tf.placeholder(
+        'float32', [BATCH_SIZE, 1])
 
 
-def main(init_session=None, placeholder_def_func=get_placeholders):
+def run_experiment(init_session=None, placeholder_def_func=get_placeholders):
     batch_size = BATCH_SIZE
     hidden_size = HIDDEN_STATES
-    learning_rate = 3e-4
+    learning_rate = 1e-5
     momentum = 0.9
 
     file_logger = FileLogger('log.tsv', ['step', 'training_loss', 'benchmark_loss'])
@@ -56,7 +54,8 @@ def main(init_session=None, placeholder_def_func=get_placeholders):
         sess = init_session
     else:
         sess = tf.Session(config=tf.ConfigProto(log_device_placement=False))
-    init = tf.global_variables_initializer()
+    init = tf.initialize_all_variables()  # TF v0.11
+    # init = tf.global_variables_initializer() # TF v0.12
     sess.run(init)
 
     # lstm.__call__(x[:, 0, :], initial_state, scope=None)
@@ -76,4 +75,4 @@ def main(init_session=None, placeholder_def_func=get_placeholders):
 
 
 if __name__ == '__main__':
-    main()
+    run_experiment()

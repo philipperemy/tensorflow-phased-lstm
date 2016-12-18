@@ -14,6 +14,7 @@ def mod_grad(op, grad):
         0]  # the first argument (normally you need those to calculate the gradient, like the gradient of x^2 is 2x. )
     y = op.inputs[1]  # the second argument
 
+    # I think this gradient is incorrect.
     return grad * 1, grad * 0  # the propagated gradient with respect to the first and second argument respectively
 
 
@@ -43,7 +44,7 @@ def main():
         x = tf.constant([0.3, 0.7, 1.2, 1.7])
         y = tf.constant([0.2, 0.5, 1.0, 2.9])
         z = tf_mod(x, y)
-        x = tf.constant([0.3, 0.7, 1.2])
+        x = tf.constant([0.3, 0.7, 0.8])
         y = tf.constant([0.2, 0.5, 1.0])
         z = tf_mod(x, y)
         gr = tf.gradients(z, [x, y])

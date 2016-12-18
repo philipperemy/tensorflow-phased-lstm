@@ -1,15 +1,24 @@
 import tensorflow as tf
+from tensorflow.python.framework import ops
 from tensorflow.python.ops import array_ops
 from tensorflow.python.ops import variable_scope as vs
 from tensorflow.python.ops.math_ops import sigmoid
 from tensorflow.python.ops.math_ops import tanh
 from tensorflow.python.ops.rnn_cell import RNNCell, _linear
 
-from mod_op import tf_mod
+
+# Register the gradient for the mod operation. tf.mod() does not have a gradient implemented.
+@ops.RegisterGradient("Mod")
+def _mod_grad(op, grad):
+    x, y = op.inputs
+    gz = grad
+    x_grad = gz
+    y_grad = tf.reduce_mean(-(x // y) * gz, reduction_indices=[0], keep_dims=True)[0]
+    return x_grad, y_grad
 
 
-def phi(t, s, tau):
-    return tf_mod(t - s, tau) / tau
+def phi(times, s, tau):
+    return tf.div(tf.mod(tf.mod(times - s, tau) + tau, tau), tau)
 
 
 def time_gate_fast(phase, r_on, leak_rate, training_phase, hidden_units):
@@ -63,6 +72,7 @@ class PhasedLSTMCell(RNNCell):
             c_prev, h_prev = state
             x = tf.reshape(inputs[:, 0], (-1, 1))
             t = inputs[:, 1][-1]  # Now we only accept one id. We have a batch so it's a bit more complex.
+
             # maybe the information should come from the outside. To be defined later.
 
             concat = _linear([x, h_prev], 4 * self._num_units, True)
@@ -73,7 +83,8 @@ class PhasedLSTMCell(RNNCell):
             s = vs.get_variable('s', shape=[self._num_units], dtype=inputs.dtype)
             r_on = vs.get_variable('r_on', shape=[self._num_units], dtype=inputs.dtype)
 
-            phase = phi(t, s, tau)
+            times = tf.tile(tf.reshape(t, [-1, 1]), [1, self._num_units])
+            phase = phi(times, s, tau)
             kappa = time_gate_fast(phase, r_on, self._leak_rate, self._training_phase, self._num_units)
 
             w_o_peephole = None

@@ -3,7 +3,7 @@ import tensorflow as tf
 
 from constants import BATCH_SIZE
 from data_reader import next_batch
-from main import main
+from main import run_experiment
 
 np.set_printoptions(threshold=np.nan)
 
@@ -23,7 +23,7 @@ class PhasedLSTMTests(tf.test.TestCase):
         global SESSION
         with self.test_session() as sess:
             SESSION = sess
-            main(sess, get_placeholders_test)
+            run_experiment(sess, get_placeholders_test)
             # debug a forward call to the RNN.
 
 
