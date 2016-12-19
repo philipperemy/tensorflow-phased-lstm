@@ -6,7 +6,6 @@ from tensorflow.python.ops.rnn import dynamic_rnn
 from basic_lstm import BasicLSTMCell
 from helpers import FileLogger
 from ml_utils import create_convolution_variable, create_bias_variable
-from phased_lstm import PhasedLSTMCell
 
 
 def run_lstm_mnist(lstm_cell=BasicLSTMCell, hidden_size=32, batch_size=256, steps=20):
@@ -57,7 +56,7 @@ def run_lstm_mnist(lstm_cell=BasicLSTMCell, hidden_size=32, batch_size=256, step
 
 def main():
     # Vanilla LSTM
-    run_lstm_mnist(lstm_cell=PhasedLSTMCell, hidden_size=32, batch_size=256, steps=2000)
+    run_lstm_mnist(lstm_cell=BasicLSTMCell, hidden_size=32, batch_size=256, steps=2000)
 
 
 if __name__ == '__main__':
