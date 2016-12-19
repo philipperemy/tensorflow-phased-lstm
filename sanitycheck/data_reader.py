@@ -1,7 +1,7 @@
 import numpy as np
 from numpy.random import uniform
 
-from constants import *
+from sanitycheck.constants import *
 
 
 def next_batch(bs):

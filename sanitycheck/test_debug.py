@@ -1,9 +1,9 @@
 import numpy as np
 import tensorflow as tf
 
-from constants import BATCH_SIZE
-from data_reader import next_batch
-from test_sanity_check import run_experiment
+from sanitycheck.constants import BATCH_SIZE
+from sanitycheck.data_reader import next_batch
+from sanitycheck.test_sanity_check import run_experiment
 
 np.set_printoptions(threshold=np.nan)
 

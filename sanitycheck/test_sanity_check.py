@@ -5,12 +5,12 @@ import tensorflow as tf
 from tensorflow.python.ops.rnn import dynamic_rnn
 
 from basic_lstm import BasicLSTMCell
-from constants import *
-from data_reader import next_batch
 from helpers import FileLogger
 from ml_utils import create_adam_optimizer
 from ml_utils import create_convolution_variable
 from phased_lstm import PhasedLSTMCell
+from sanitycheck.constants import *
+from sanitycheck.data_reader import next_batch
 
 
 def get_placeholders():
@@ -21,7 +21,7 @@ def get_placeholders():
 def run_experiment(init_session=None, placeholder_def_func=get_placeholders):
     batch_size = BATCH_SIZE
     hidden_size = HIDDEN_STATES
-    learning_rate = 1e-5
+    learning_rate = 3e-4
     momentum = 0.9
 
     file_logger = FileLogger('log.tsv', ['step', 'training_loss', 'benchmark_loss'])
