@@ -36,14 +36,16 @@ oscillation to each Phased LSTM cell.
 </div>
 
 
-## Resuts on MNIST dataset
+# Resuts on MNIST dataset
 
 Here are the results on the MNIST dataset. We consider MNIST as long sequences.
 
+## Accuracy
 <div align="center">
   <img src="fig/mnist_acc.png" width="400"><br><br>
 </div>
 
+## Loss
 <div align="center">
   <img src="fig/mnist_ce.png" width="400"><br><br>
 </div>
