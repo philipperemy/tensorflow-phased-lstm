@@ -1,8 +1,5 @@
 # Phased LSTM: Accelerating Recurrent Network Training for Long or Event-based Sequences (NIPS 2016)
 
-Work in progress (will be fully available in a few weeks). Please star it to see the evolution!
-
-
 <div align="center">
   <img src="https://www.tensorflow.org/images/tf_logo_transp.png" width="200"><br><br>
 </div>
@@ -18,15 +15,15 @@ of the duration of the “open” phase to the full period. The third, s, contro
 oscillation to each Phased LSTM cell.
 
 <div align="center">
-  <img src="fig/fig1.png" width="400"><br><br>
+  <img src="fig/fig1.png"><br><br>
 </div>
 
 <div align="center">
-  <img src="fig/fig2.png" width="400"><br><br>
+  <img src="fig/fig2.png"><br><br>
 </div>
 
 <div align="center">
-  <img src="fig/fig3.png" width="400"><br><br>
+  <img src="fig/fig3.png"><br><br>
 </div>
 
 
@@ -39,3 +36,21 @@ oscillation to each Phased LSTM cell.
 <div align="center">
   <img src="fig/mnist_ce.png" width="400"><br><br>
 </div>
+
+The Phased LSTM has many surprising advantages. With its rhythmic periodicity, it acts like a
+learnable, gated Fourier transform on its input, permitting very fine timing discrimination. Alternatively,
+the rhythmic periodicity can be viewed as a kind of persistent dropout that preserves state [27],
+enhancing model diversity. The rhythmic inactivation can even be viewed as a shortcut to the past
+for gradient backpropagation, accelerating training. The presented results support these interpretations,
+demonstrating the ability to discriminate rhythmic signals and to learn long memory traces.
+Importantly, in all experiments, Phased LSTM converges more quickly and theoretically requires
+only 5% of the computes at runtime, while often improving in accuracy compared to standard LSTM.
+The presented methods can also easily be extended to GRUs [6], and it is likely that even simpler
+models, such as ones that use a square-wave-like oscillation, will perform well, thereby making even
+more efficient and encouraging alternative Phased LSTM formulations. An inspiration for using
+oscillations in recurrent networks comes from computational neuroscience [3], where rhythms have
+been shown to play important roles for synchronization and plasticity [22]. Phased LSTMs were
+not designed as biologically plausible models, but may help explain some of the advantages and
+robustness of learning in large spiking recurrent networks.
+
+From: https://arxiv.org/pdf/1610.09513v1.pdf
