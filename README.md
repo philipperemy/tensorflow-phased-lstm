@@ -10,16 +10,10 @@ Work in progress (will be fully available in a few weeks). Please star it to see
 
 ## Modeling long sequences with MNIST
 
-<style media="screen" type="text/css">
-.imgContainer{
-    float:left;
-}
-</style>
-
-<div class="imgContainer">
+<div align="center">
   <img src="fig/mnist_acc.png" width="400"><br><br>
 </div>
 
-<div class="imgContainer">
+<div align="center">
   <img src="fig/mnist_ce.png" width="400"><br><br>
 </div>
