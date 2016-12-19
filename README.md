@@ -1,9 +1,18 @@
-# Phased LSTM: Accelerating Recurrent Network Training for Long or Event-based Sequences (NIPS 2016)
+## Phased LSTM: Accelerating Recurrent Network Training for Long or Event-based Sequences (NIPS 2016)
 
 <div align="center">
   <img src="https://www.tensorflow.org/images/tf_logo_transp.png" width="200"><br><br>
 </div>
 -----------------
+
+## How to use it?
+```
+git clone git@github.com:philipperemy/tensorflow-phased-lstm.git plstm
+cd plstm
+sudo pip install -r requirements.txt
+# make sure Tensorflow 0.12 is installed.
+python mnist_results_phased_lstm.py # to reproduce the results.
+```
 
 # Phased LSTM
 
@@ -27,7 +36,9 @@ oscillation to each Phased LSTM cell.
 </div>
 
 
-## Resuts on MNIST data set
+## Resuts on MNIST dataset
+
+Here are the results on the MNIST dataset. We consider MNIST as long sequences.
 
 <div align="center">
   <img src="fig/mnist_acc.png" width="400"><br><br>
