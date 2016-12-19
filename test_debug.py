@@ -3,7 +3,7 @@ import tensorflow as tf
 
 from constants import BATCH_SIZE
 from data_reader import next_batch
-from main import run_experiment
+from test_sanity_check import run_experiment
 
 np.set_printoptions(threshold=np.nan)
 

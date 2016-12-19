@@ -13,7 +13,7 @@ from phased_lstm import PhasedLSTMCell
 # which is the sine waves discrimination
 
 flags = tf.flags
-flags.DEFINE_string('unit', 'GRU', 'Can be PSLTM, LSTM, GRU')
+flags.DEFINE_string('unit', 'GRU', 'Can be PLSTM, LSTM, GRU')
 flags.DEFINE_boolean('async', False, 'Use asynchronous sampling')
 flags.DEFINE_float('resolution', 0.1, 'Sampling resolution if async is set to False')
 flags.DEFINE_integer('n_hidden', 100, 'hidden units in the recurrent layer')  # 100

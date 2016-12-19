@@ -17,7 +17,3 @@ def next_batch(bs):
     else:
         inputs = x
     return np.array(inputs, dtype='float32'), np.array(np.reshape(y, (bs, 1)), dtype='float32')
-
-
-if __name__ == '__main__':
-    print(next_batch(4))
