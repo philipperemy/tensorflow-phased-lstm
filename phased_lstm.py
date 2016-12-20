@@ -119,12 +119,27 @@ class PhasedLSTMCell(RNNCell):
                 i += w_i_peephole * c_prev
 
             new_c_tilde = sigmoid(f) * c_prev + sigmoid(i) * self._activation(j)
-            new_c = kappa * new_c_tilde + (1 - kappa) * c_prev
-
             if self._use_peepholes:
-                o += w_o_peephole * new_c
+                o += w_o_peephole * new_c_tilde
 
             new_h_tilde = sigmoid(o) * self._activation(new_c_tilde)
+
+            """
+            Hi all,
+            Yes, Philippe, you are correct in that Equation 4 should reference c_tilde and not c.
+            I can add a point to the paper to mention that, and will update Figure 1 so the line is
+            correctly drawn to c_tilde instead. The intuition here is that the gates should be blind
+            to the effect of the khronos gate; input, forget and output gate should all operate as if
+            the cell were a normal LSTM cell, while the khronos gate allows it to either operate or
+            not operate (and then linearly interpolates between these two states). If the output gate
+            is influenced by the khronos gate (if the peepholes reference c instead of c_tilde), then
+            the PLSTM would no longer be a gated LSTM cell, but somehow be self-dependent on the time gate's actual operation.
+            I think everyone's right in that it wouldn't influence much -- but it should be updated in
+            the paper. Thanks very much for pointing out the issue, Philippe!
+            -Danny"""
+
+            # Apply Khronos gate
             new_h = kappa * new_h_tilde + (1 - kappa) * h_prev
+            new_c = kappa * new_c_tilde + (1 - kappa) * c_prev
             new_state = (new_c, new_h)
             return new_h, new_state
