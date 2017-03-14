@@ -70,7 +70,6 @@ class PhasedLSTMCell(RNNCell):
         self._training_phase = training_phase
         self.r_on_init = r_on_init
         self.tau_init = tau_init
-        print('Using PHASED')
 
     @property
     def state_size(self):
