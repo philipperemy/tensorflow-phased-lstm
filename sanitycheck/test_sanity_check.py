@@ -54,8 +54,7 @@ def run_experiment(init_session=None, placeholder_def_func=get_placeholders):
         sess = init_session
     else:
         sess = tf.Session(config=tf.ConfigProto(log_device_placement=False))
-    init = tf.initialize_all_variables()  # TF v0.11
-    # init = tf.global_variables_initializer() # TF v0.12
+    init = tf.global_variables_initializer()
     sess.run(init)
 
     # lstm.__call__(x[:, 0, :], initial_state, scope=None)
