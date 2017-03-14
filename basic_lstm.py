@@ -1,11 +1,14 @@
+from tensorflow.contrib.rnn import RNNCell
+from tensorflow.contrib.rnn.python.ops.core_rnn_cell_impl import _linear
 from tensorflow.python.ops import array_ops
 from tensorflow.python.ops import variable_scope as vs
 from tensorflow.python.ops.math_ops import sigmoid
 from tensorflow.python.ops.math_ops import tanh
-from tensorflow.python.ops.rnn_cell import RNNCell, _linear
 
 
 class BasicLSTMCell(RNNCell):
+    # from tf.contrib.rnn import LSTMCell
+
     def __init__(self, num_units, activation=tanh):
         self._num_units = num_units
         self._activation = activation
@@ -25,7 +28,7 @@ class BasicLSTMCell(RNNCell):
             c, h = state
             concat = _linear([inputs, h], 4 * self._num_units, True)
             # i = input_gate, j = new_input, f = forget_gate, o = output_gate
-            i, j, f, o = array_ops.split(1, 4, concat)
+            i, j, f, o = array_ops.split(value=concat, num_or_size_splits=4, axis=1)
             new_c = (c * sigmoid(f) + sigmoid(i) * self._activation(j))
             new_h = self._activation(new_c) * sigmoid(o)
             new_state = (new_c, new_h)

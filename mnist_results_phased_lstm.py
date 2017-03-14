@@ -24,13 +24,13 @@ def run_lstm_mnist(lstm_cell=BasicLSTMCell, hidden_size=32, batch_size=256, step
     fc0_b = create_bias_variable('fc0_b', [10])
     y = tf.matmul(rnn_out, fc0_w) + fc0_b
 
-    cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(y, y_))
+    cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=y, labels=y_))
     grad_update = tf.train.AdamOptimizer(learning_rate).minimize(cross_entropy)
     correct_prediction = tf.equal(tf.argmax(y_, 1), tf.argmax(y, 1))
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
     sess = tf.Session(config=tf.ConfigProto(log_device_placement=False))
-    sess.run(tf.initialize_all_variables())
+    sess.run(tf.global_variables_initializer())
 
     # sess.run(tf.global_variables_initializer())
 

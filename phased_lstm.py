@@ -1,4 +1,6 @@
 import tensorflow as tf
+from tensorflow.contrib.rnn import RNNCell
+from tensorflow.contrib.rnn.python.ops.core_rnn_cell_impl import _linear
 from tensorflow.python.framework import dtypes
 from tensorflow.python.framework import ops
 from tensorflow.python.ops import array_ops
@@ -7,7 +9,6 @@ from tensorflow.python.ops import random_ops
 from tensorflow.python.ops import variable_scope as vs
 from tensorflow.python.ops.math_ops import sigmoid
 from tensorflow.python.ops.math_ops import tanh
-from tensorflow.python.ops.rnn_cell import RNNCell, _linear
 
 
 def random_exp_initializer(minval=0, maxval=None, seed=None,
@@ -33,12 +34,12 @@ def random_exp_initializer(minval=0, maxval=None, seed=None,
 
 
 # Register the gradient for the mod operation. tf.mod() does not have a gradient implemented.
-@ops.RegisterGradient('Mod')
+@ops.RegisterGradient('FloorMod')
 def _mod_grad(op, grad):
     x, y = op.inputs
     gz = grad
     x_grad = gz
-    y_grad = tf.reduce_mean(-(x // y) * gz, reduction_indices=[0], keep_dims=True)[0]
+    y_grad = tf.reduce_mean(-(x // y) * gz, axis=[0], keep_dims=True)[0]
     return x_grad, y_grad
 
 
@@ -53,9 +54,9 @@ def time_gate_fast(phase, r_on, leak_rate, training_phase, hidden_units):
     cond_2 = tf.cast(tf.logical_and(tf.less(0.5 * r_on, phase), tf.less(phase, r_on)), dtype='float32')
     cond_3 = tf.cast(tf.greater_equal(phase, r_on), dtype='float32')
 
-    term_1 = tf.mul(cond_1, 2.0 * phase / r_on)
-    term_2 = tf.mul(cond_2, 2.0 - 2.0 * phase / r_on)
-    term_3 = tf.mul(cond_3, leak_rate * phase)
+    term_1 = tf.multiply(cond_1, 2.0 * phase / r_on)
+    term_2 = tf.multiply(cond_2, 2.0 - 2.0 * phase / r_on)
+    term_3 = tf.multiply(cond_3, leak_rate * phase)
     return term_1 + term_2 + term_3
 
 
@@ -69,6 +70,7 @@ class PhasedLSTMCell(RNNCell):
         self._training_phase = training_phase
         self.r_on_init = r_on_init
         self.tau_init = tau_init
+        print('Using PHASED')
 
     @property
     def state_size(self):
@@ -93,7 +95,7 @@ class PhasedLSTMCell(RNNCell):
 
             concat = _linear([x, h_prev], 4 * self._num_units, True)
             # i = input_gate, j = new_input, f = forget_gate, o = output_gate
-            i, j, f, o = array_ops.split(1, 4, concat)
+            i, j, f, o = array_ops.split(value=concat, num_or_size_splits=4, axis=1)
 
             dtype = inputs.dtype
             tau = vs.get_variable('tau', shape=[self._num_units],
