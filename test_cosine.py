@@ -69,13 +69,13 @@ def initialize_all_variables(sess=None):
     g = tf.get_default_graph()
 
     safe_initializers = {}
-    for v in tf.all_variables():
+    for v in tf.global_variables():
         safe_initializers[v.op.name] = make_safe_initializer(v)
 
     # initializers access variable vaue through read-only value cached in
     # <varname>/read, so add control dependency to trigger safe_initializer
     # on read access
-    for v in tf.all_variables():
+    for v in tf.global_variables():
         var_name = v.op.name
         var_cache = g.get_operation_by_name(var_name + '/read')
         ge.reroute.add_control_inputs(var_cache, [safe_initializers[var_name]])
@@ -83,7 +83,7 @@ def initialize_all_variables(sess=None):
     sess.run(tf.group(*safe_initializers.values()))
 
     # remove initializer dependencies to avoid slowing down future variable reads
-    for v in tf.all_variables():
+    for v in tf.global_variables():
         var_name = v.op.name
         var_cache = g.get_operation_by_name(var_name + '/read')
         ge.reroute.remove_control_inputs(var_cache, [safe_initializers[var_name]])
@@ -192,7 +192,7 @@ def main(_):
     print('DONE!')
 
     print('Compiling cost functions...', end='')
-    cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(predictions, y))
+    cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=predictions, labels=y))
     print('DONE!')
 
     # I like to log the gradients
