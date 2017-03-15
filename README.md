@@ -1,4 +1,5 @@
 ## Phased LSTM: Accelerating Recurrent Network Training for Long or Event-based Sequences (NIPS 2016)
+### Compatible with Tensorflow 1.x. Please upgrade if you have Tensorflow 0.x.
 
 <div align="center">
   <img src="https://www.tensorflow.org/images/tf_logo_transp.png" width="200"><br><br>
@@ -10,8 +11,8 @@
 git clone git@github.com:philipperemy/tensorflow-phased-lstm.git plstm
 cd plstm
 sudo pip install -r requirements.txt
-# make sure Tensorflow 0.12 is installed.
-python mnist_results_phased_lstm.py # to reproduce the results.
+# make sure at least Tensorflow 1.0.1 is installed.
+python mnist_results_phased_lstm.py # to reproduce the results of Phased LSTM on MNIST dataset.
 ```
 
 # Phased LSTM
