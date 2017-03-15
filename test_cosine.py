@@ -3,7 +3,7 @@ from __future__ import division
 import numpy as np
 import tensorflow as tf
 from tabulate import tabulate
-from tensorflow.python.ops.rnn_cell import LSTMCell, GRUCell
+from tensorflow.contrib.rnn import LSTMCell, GRUCell
 
 from phased_lstm import PhasedLSTMCell
 
