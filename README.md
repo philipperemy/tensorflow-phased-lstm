@@ -1,4 +1,5 @@
 ## Phased LSTM: Accelerating Recurrent Network Training for Long or Event-based Sequences (NIPS 2016)
+### Compatible with Tensorflow 1.x. Please upgrade if you have Tensorflow 0.x
 
 <div align="center">
   <img src="https://www.tensorflow.org/images/tf_logo_transp.png" width="200"><br><br>
