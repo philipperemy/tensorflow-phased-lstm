@@ -12,7 +12,9 @@ git clone git@github.com:philipperemy/tensorflow-phased-lstm.git plstm
 cd plstm
 sudo pip install -r requirements.txt
 # make sure at least Tensorflow 1.0.1 is installed.
-python mnist_results_phased_lstm.py # to reproduce the results of Phased LSTM on MNIST dataset.
+# To reproduce the results of Phased LSTM on MNIST dataset.
+python mnist_phased_lstm.py -m BasicLSTMCell
+python mnist_phased_lstm.py -m PhasedLSTMCell
 ```
 
 # Phased LSTM
@@ -39,7 +41,7 @@ oscillation to each Phased LSTM cell.
 
 # Resuts on MNIST dataset
 
-Here are the results on the MNIST dataset. We consider MNIST as long sequences.
+Here are the results on the MNIST dataset on the training set. We consider MNIST as long sequences. Clearly with 32 cells, the Basic LSTM implementation cannot learn whereas Phased LSTM does pretty well.
 
 ## Accuracy
 <div align="center">
