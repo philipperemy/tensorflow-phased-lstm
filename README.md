@@ -43,12 +43,12 @@ oscillation to each Phased LSTM cell.
 
 Here are the results on the MNIST dataset on the training set. We consider MNIST as long sequences. Clearly with 32 cells, the Basic LSTM implementation cannot learn whereas Phased LSTM does pretty well.
 
-## Accuracy
+## Training Accuracy
 <div align="center">
   <img src="fig/mnist_acc.png" width="400"><br><br>
 </div>
 
-## Loss
+## Training Loss
 <div align="center">
   <img src="fig/mnist_ce.png" width="400"><br><br>
 </div>
