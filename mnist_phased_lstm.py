@@ -1,3 +1,6 @@
+import argparse
+from time import time
+
 import numpy as np
 import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
@@ -5,21 +8,22 @@ from tensorflow.python.ops.rnn import dynamic_rnn
 
 from basic_lstm import BasicLSTMCell
 from helpers import FileLogger
-from ml_utils import create_convolution_variable, create_bias_variable
+from ml_utils import create_weight_variable, create_bias_variable
+from phased_lstm import PhasedLSTMCell
 
 
-def run_lstm_mnist(lstm_cell=BasicLSTMCell, hidden_size=32, batch_size=256, steps=20):
+def run_lstm_mnist(lstm_cell=BasicLSTMCell, hidden_size=32, batch_size=256, steps=1000):
     mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
     learning_rate = 0.001
     file_logger = FileLogger('log.tsv', ['step', 'training_loss', 'training_accuracy'])
-    x = tf.placeholder('float32', [batch_size, 784, 2 if 'PhasedLSTMCell' in str(lstm_cell) else 1])
+    x = tf.placeholder('float32', [batch_size, 784, 2 if lstm_cell == PhasedLSTMCell else 1])
     y_ = tf.placeholder('float32', [batch_size, 10])
-    initial_state = (tf.random_normal([batch_size, hidden_size], stddev=0.1),
-                     tf.random_normal([batch_size, hidden_size], stddev=0.1))
-    outputs, state = dynamic_rnn(lstm_cell(hidden_size), x, initial_state=initial_state, dtype=tf.float32)
-    rnn_out = tf.squeeze(tf.slice(outputs, begin=[0, tf.shape(outputs)[1] - 1, 0], size=[-1, -1, -1]))
-    # _, final_hidden = state
-    fc0_w = create_convolution_variable('fc0_w', [hidden_size, 10])
+    initial_states = (tf.random_normal([batch_size, hidden_size], stddev=0.1),
+                      tf.random_normal([batch_size, hidden_size], stddev=0.1))
+    outputs, _ = dynamic_rnn(lstm_cell(hidden_size), x, initial_state=initial_states, dtype=tf.float32)
+    rnn_out = tf.squeeze(outputs[:, -1, :])
+
+    fc0_w = create_weight_variable('fc0_w', [hidden_size, 10])
     fc0_b = create_bias_variable('fc0_b', [10])
     y = tf.matmul(rnn_out, fc0_w) + fc0_b
 
@@ -32,7 +36,7 @@ def run_lstm_mnist(lstm_cell=BasicLSTMCell, hidden_size=32, batch_size=256, step
     sess.run(tf.global_variables_initializer())
 
     def transform_x(_x_):
-        if 'PhasedLSTMCell' in str(lstm_cell):
+        if lstm_cell == PhasedLSTMCell:
             t = np.reshape(np.tile(np.array(range(784)), (batch_size, 1)), (batch_size, 784))
             return np.squeeze(np.stack([_x_, t], axis=2))
         t_x = np.expand_dims(_x_, axis=2)
@@ -40,21 +44,31 @@ def run_lstm_mnist(lstm_cell=BasicLSTMCell, hidden_size=32, batch_size=256, step
 
     for i in range(steps):
         batch = mnist.train.next_batch(batch_size)
+        st = time()
         tr_loss, tr_acc, _ = sess.run([cross_entropy, accuracy, grad_update],
                                       feed_dict={x: transform_x(batch[0]), y_: batch[1]})
-        sess.run(grad_update, feed_dict={x: transform_x(batch[0]), y_: batch[1]})
+        print('Forward-Backward pass took {0:.2f}s to complete.'.format(time() - st))
         file_logger.write([i, tr_loss, tr_acc])
 
-        # batch_test = mnist.test.next_batch(batch_size)
-        # print('test accuracy %g' % sess.run(accuracy, feed_dict={x: np.expand_dims(batch_test[0], axis=2),
-        #                                                y_: batch_test[
-        #                                                    1]}))  # file_logger.write([step, mean_loss, benchmark_mean_loss])
     file_logger.close()
 
 
 def main():
-    # Vanilla LSTM
-    run_lstm_mnist(lstm_cell=BasicLSTMCell, hidden_size=32, batch_size=256, steps=2000)
+    model_class = get_model_class()
+    run_lstm_mnist(lstm_cell=model_class, hidden_size=32, batch_size=256, steps=10000)
+
+
+def get_model_class():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-m', '--model')  # BasicLSTMCell, PhasedLSTMCell or None
+    args = parser.parse_args()
+    model_str = args.model
+    if model_str is None:
+        model = PhasedLSTMCell
+    else:
+        model = globals()[model_str]
+    print('Using model = {}'.format(model))
+    return model
 
 
 if __name__ == '__main__':

@@ -7,7 +7,7 @@ from tensorflow.python.ops.rnn import dynamic_rnn
 from basic_lstm import BasicLSTMCell
 from helpers import FileLogger
 from ml_utils import create_adam_optimizer
-from ml_utils import create_convolution_variable
+from ml_utils import create_weight_variable
 from phased_lstm import PhasedLSTMCell
 from sanitycheck.constants import *
 from sanitycheck.data_reader import next_batch
@@ -41,7 +41,7 @@ def run_experiment(init_session=None, placeholder_def_func=get_placeholders):
     rnn_out = tf.squeeze(tf.slice(outputs, begin=[0, tf.shape(outputs)[1] - 1, 0], size=[-1, -1, -1]))
     # _, final_hidden = state
 
-    fc0_w = create_convolution_variable('fc0_w', [hidden_size, 1])
+    fc0_w = create_weight_variable('fc0_w', [hidden_size, 1])
     fc0_b = tf.get_variable('fc0_b', [1])
     out = tf.matmul(rnn_out, fc0_w) + fc0_b
 
