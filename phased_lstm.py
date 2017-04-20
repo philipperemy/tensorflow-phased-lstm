@@ -44,8 +44,8 @@ def _mod_grad(op, grad):
 
 
 def phi(times, s, tau):
-    return tf.div(tf.mod(tf.mod(times - s, tau) + tau, tau), tau)
-    # return tf.div(tf.mod(times - s, tau), tau)
+    # return tf.div(tf.mod(tf.mod(times - s, tau) + tau, tau), tau)
+    return tf.div(tf.mod(times - s, tau), tau)
 
 
 def time_gate_fast_2(phase, r_on, leak_rate, training_phase):
