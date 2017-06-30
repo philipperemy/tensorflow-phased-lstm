@@ -1,10 +1,11 @@
 ## Phased LSTM: Accelerating Recurrent Network Training for Long or Event-based Sequences (NIPS 2016)
-### Compatible with Tensorflow 1.x. Please upgrade if you have Tensorflow 0.x.
+[![license](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://github.com/philipperemy/keras-attention-mechanism/blob/master/LICENSE) [![dep1](https://img.shields.io/badge/Tensorflow-1.2+-blue.svg)](https://www.tensorflow.org/)
 
 <div align="center">
   <img src="https://www.tensorflow.org/images/tf_logo_transp.png" width="200"><br><br>
 </div>
------------------
+
+<hr/>
 
 ## How to use it?
 ```
