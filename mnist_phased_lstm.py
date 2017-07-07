@@ -6,7 +6,7 @@ import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 from tensorflow.python.ops.rnn import dynamic_rnn
 
-from basic_lstm import BasicLSTMCell
+from tensorflow.contrib.rnn import BasicLSTMCell
 from helpers import FileLogger
 from ml_utils import create_weight_variable, create_bias_variable
 from phased_lstm import PhasedLSTMCell

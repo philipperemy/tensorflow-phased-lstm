@@ -1,6 +1,6 @@
 import tensorflow as tf
 from tensorflow.contrib.rnn import RNNCell
-from tensorflow.contrib.rnn.python.ops.core_rnn_cell_impl import _linear
+from tensorflow.python.ops import rnn_cell_impl
 from tensorflow.python.framework import dtypes
 from tensorflow.python.framework import ops
 from tensorflow.python.ops import array_ops
@@ -9,6 +9,8 @@ from tensorflow.python.ops import random_ops
 from tensorflow.python.ops import variable_scope as vs
 from tensorflow.python.ops.math_ops import sigmoid
 from tensorflow.python.ops.math_ops import tanh
+
+_linear = rnn_cell_impl._linear
 
 
 def random_exp_initializer(minval=0, maxval=None, seed=None,
