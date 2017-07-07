@@ -12,12 +12,14 @@ https://github.com/philipperemy/tensorflow-phased-lstm/blob/master/official_tens
 
 <hr/>
 
-## You can still use this alternative implementation. How to use it?
+**NOTE: You can still use this alternative implementation. The code is very similar and it's as fast as the official one (0.8 seconds for a forward-backward pass on a Titan X Maxwell GPU).**
+
+## How to use it?
 ```
 git clone git@github.com:philipperemy/tensorflow-phased-lstm.git plstm
 cd plstm
 sudo pip install -r requirements.txt
-# make sure at least Tensorflow 1.0.1 is installed.
+# make sure at least Tensorflow 1.2.0 is installed.
 # To reproduce the results of Phased LSTM on MNIST dataset.
 python mnist_phased_lstm.py -m BasicLSTMCell
 python mnist_phased_lstm.py -m PhasedLSTMCell
