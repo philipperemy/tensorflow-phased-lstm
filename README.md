@@ -1,13 +1,18 @@
 ## Phased LSTM: Accelerating Recurrent Network Training for Long or Event-based Sequences (NIPS 2016)
 [![license](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://github.com/philipperemy/keras-attention-mechanism/blob/master/LICENSE) [![dep1](https://img.shields.io/badge/Tensorflow-1.2+-blue.svg)](https://www.tensorflow.org/)
 
+Tensorflow has released an official version of the Phased LSTM. I wrote a script to show how to use it: 
+
+https://github.com/philipperemy/tensorflow-phased-lstm/blob/master/official_tensorflow_phased_lstm.py
+
 <div align="center">
-  <img src="https://www.tensorflow.org/images/tf_logo_transp.png" width="200"><br><br>
+  <img src="fig/official_tensorflow_impl.png" width="500"><br><br>
+  <p><i>Training on the classification of MNIST digits with Phased LSTM and Basic LSTM (official TF implementation)</i></p>
 </div>
 
 <hr/>
 
-## How to use it?
+## You can still use this alternative implementation. How to use it?
 ```
 git clone git@github.com:philipperemy/tensorflow-phased-lstm.git plstm
 cd plstm
