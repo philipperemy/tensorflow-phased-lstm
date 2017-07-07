@@ -1,10 +1,11 @@
 ## Phased LSTM: Accelerating Recurrent Network Training for Long or Event-based Sequences (NIPS 2016)
-### Compatible with Tensorflow 1.x. Please upgrade if you have Tensorflow 0.x.
+[![license](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://github.com/philipperemy/keras-attention-mechanism/blob/master/LICENSE) [![dep1](https://img.shields.io/badge/Tensorflow-1.2+-blue.svg)](https://www.tensorflow.org/)
 
 <div align="center">
   <img src="https://www.tensorflow.org/images/tf_logo_transp.png" width="200"><br><br>
 </div>
------------------
+
+<hr/>
 
 ## How to use it?
 ```
@@ -12,7 +13,9 @@ git clone git@github.com:philipperemy/tensorflow-phased-lstm.git plstm
 cd plstm
 sudo pip install -r requirements.txt
 # make sure at least Tensorflow 1.0.1 is installed.
-python mnist_results_phased_lstm.py # to reproduce the results of Phased LSTM on MNIST dataset.
+# To reproduce the results of Phased LSTM on MNIST dataset.
+python mnist_phased_lstm.py -m BasicLSTMCell
+python mnist_phased_lstm.py -m PhasedLSTMCell
 ```
 
 # Phased LSTM
@@ -39,14 +42,14 @@ oscillation to each Phased LSTM cell.
 
 # Resuts on MNIST dataset
 
-Here are the results on the MNIST dataset. We consider MNIST as long sequences.
+Here are the results on the MNIST dataset on the training set. We consider MNIST as long sequences. Clearly with 32 cells, the Basic LSTM implementation cannot learn whereas Phased LSTM does pretty well.
 
-## Accuracy
+## Training Accuracy
 <div align="center">
   <img src="fig/mnist_acc.png" width="400"><br><br>
 </div>
 
-## Loss
+## Training Loss
 <div align="center">
   <img src="fig/mnist_ce.png" width="400"><br><br>
 </div>
