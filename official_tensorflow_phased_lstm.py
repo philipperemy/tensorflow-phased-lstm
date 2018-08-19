@@ -77,8 +77,8 @@ def main():
 
 def get_parameters():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-m', '--model')  # BasicLSTMCell, PhasedLSTMCell or None
-    parser.add_argument('-g', '--log_file')  # BasicLSTMCell, PhasedLSTMCell or None
+    parser.add_argument('-m', '--model', required=True, help='BasicLSTMCell, PhasedLSTMCell or None')
+    parser.add_argument('-g', '--log_file', default='log.tsv')
     args = parser.parse_args()
     model_str = args.model
     log_file = args.log_file
