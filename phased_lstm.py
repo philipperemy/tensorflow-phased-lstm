@@ -41,7 +41,7 @@ def phi(times, s, tau):
 
 def time_gate_fast_2(phase, r_on, leak_rate, training_phase):
     if not training_phase:
-        leak_rate = 1.0
+        leak_rate = 0.0
     is_up = tf.less(phase, (r_on * 0.5))
     is_down = tf.logical_and(tf.less(phase, r_on), tf.logical_not(is_up))
     time_gate = tf.where(is_up, 2 * phase / r_on, tf.where(is_down, 2. - 2. * (phase / r_on), leak_rate * phase))
@@ -50,7 +50,7 @@ def time_gate_fast_2(phase, r_on, leak_rate, training_phase):
 
 def time_gate_fast(phase, r_on, leak_rate, training_phase):
     if not training_phase:
-        leak_rate = 1.0
+        leak_rate = 0.0
     cond_1 = tf.cast(tf.less_equal(phase, 0.5 * r_on), dtype='float32')
     cond_2 = tf.cast(tf.logical_and(tf.less(0.5 * r_on, phase), tf.less(phase, r_on)), dtype='float32')
     cond_3 = tf.cast(tf.greater_equal(phase, r_on), dtype='float32')
