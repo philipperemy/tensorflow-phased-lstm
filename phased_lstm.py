@@ -1,6 +1,6 @@
 import tensorflow as tf
 from tensorflow.contrib.rnn import RNNCell
-from tensorflow.python.ops import rnn_cell_impl
+from tensorflow.contrib.rnn.python.ops import core_rnn_cell
 from tensorflow.python.framework import dtypes
 from tensorflow.python.framework import ops
 from tensorflow.python.ops import array_ops
@@ -10,8 +10,7 @@ from tensorflow.python.ops import variable_scope as vs
 from tensorflow.python.ops.math_ops import sigmoid
 from tensorflow.python.ops.math_ops import tanh
 
-_linear = rnn_cell_impl._linear
-
+_linear = core_rnn_cell._linear
 
 def random_exp_initializer(minval=0, maxval=None, seed=None,
                            dtype=dtypes.float32):
@@ -33,17 +32,6 @@ def random_exp_initializer(minval=0, maxval=None, seed=None,
         return tf.exp(random_ops.random_uniform(shape, minval, maxval, dtype, seed=seed))
 
     return _initializer
-
-
-# Register the gradient for the mod operation. tf.mod() does not have a gradient implemented.
-@ops.RegisterGradient('FloorMod')
-def _mod_grad(op, grad):
-    x, y = op.inputs
-    gz = grad
-    x_grad = gz
-    y_grad = tf.reduce_mean(-(x // y) * gz, axis=[0], keep_dims=True)[0]
-    return x_grad, y_grad
-
 
 def phi(times, s, tau):
     # return tf.div(tf.mod(tf.mod(times - s, tau) + tau, tau), tau)

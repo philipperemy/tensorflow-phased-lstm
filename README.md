@@ -12,7 +12,7 @@ https://github.com/philipperemy/tensorflow-phased-lstm/blob/master/official_tens
 
 <hr/>
 
-**NOTE: You can still use this alternative implementation. The code is very similar and it's as fast as the official one (0.8 seconds for a forward-backward pass on a Titan X Maxwell GPU).**
+**NOTE: You can still use this alternative implementation (tested on Tensorflow v1.10). The code is very similar and it's as fast as the official one (0.8 seconds for a forward-backward pass on a Titan X Maxwell GPU).**
 
 ## How to use it?
 ```

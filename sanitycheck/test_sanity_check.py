@@ -3,8 +3,7 @@ import collections
 import numpy as np
 import tensorflow as tf
 from tensorflow.python.ops.rnn import dynamic_rnn
-
-from basic_lstm import BasicLSTMCell
+from tensorflow.contrib.rnn import BasicLSTMCell
 from helpers import FileLogger
 from ml_utils import create_adam_optimizer
 from ml_utils import create_weight_variable
@@ -45,7 +44,7 @@ def run_experiment(init_session=None, placeholder_def_func=get_placeholders):
     fc0_b = tf.get_variable('fc0_b', [1])
     out = tf.matmul(rnn_out, fc0_w) + fc0_b
 
-    loss = tf.reduce_mean(tf.square(tf.sub(out, y)))
+    loss = tf.reduce_mean(tf.square(out - y))
     optimizer = create_adam_optimizer(learning_rate, momentum)
     trainable = tf.trainable_variables()
     grad_update = optimizer.minimize(loss, var_list=trainable)
@@ -61,7 +60,13 @@ def run_experiment(init_session=None, placeholder_def_func=get_placeholders):
 
     d = collections.deque(maxlen=10)
     benchmark_d = collections.deque(maxlen=10)
-    for step in range(1, int(1e9)):
+    max_steps = int(1e6)
+
+    for step in range(1, max_steps):
+
+        if step % 10 == 0:
+            print('step {}/{}'.format(step, max_steps))
+
         x_s, y_s = next_batch(batch_size)
         loss_value, _, pred_value = sess.run([loss, grad_update, out], feed_dict={x: x_s, y: y_s})
         # The mean converges to 0.5 for IID U(0,1) random variables. Good benchmark.

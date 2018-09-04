@@ -115,6 +115,8 @@ def gen_async_sin(async_sampling, resolution=None, batch_size=32, on_target_T=(5
         samples = lens
 
     start_times = np.array([np.random.uniform(0, max_len - duration) for duration in lens])
+    max_len = int(max_len)
+
     x = np.zeros((batch_size, max_len, 1))
     y = np.zeros((batch_size, 2))
     t = np.zeros((batch_size, max_len, 1))
@@ -234,7 +236,12 @@ def main(_):
         for step in range(FLAGS.n_epochs):
             train_cost = 0
             train_acc = 0
+
+            print('Working on epoch {}/{}'.format(step+1, FLAGS.n_epochs))
+
             for i in range(FLAGS.b_per_epoch):
+
+                print('  Batch {}/{}'.format(i+1, FLAGS.b_per_epoch))
                 batch_xs, batch_ys, leng, posT, negT = gen_async_sin(FLAGS.async,
                                                                      FLAGS.resolution,
                                                                      FLAGS.batch_size, [FLAGS.min_f_on, FLAGS.max_f_on],
