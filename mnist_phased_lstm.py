@@ -1,12 +1,12 @@
-import argparse
 from time import time
 
+import argparse
 import numpy as np
 import tensorflow as tf
+from tensorflow.contrib.rnn import BasicLSTMCell
 from tensorflow.examples.tutorials.mnist import input_data
 from tensorflow.python.ops.rnn import dynamic_rnn
 
-from tensorflow.contrib.rnn import BasicLSTMCell
 from helpers import FileLogger
 from ml_utils import create_weight_variable, create_bias_variable
 from phased_lstm import PhasedLSTMCell
@@ -15,7 +15,8 @@ from phased_lstm import PhasedLSTMCell
 def run_lstm_mnist(lstm_cell=BasicLSTMCell, hidden_size=32, batch_size=256, steps=1000):
     mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
     learning_rate = 0.001
-    file_logger = FileLogger('log.tsv', ['step', 'training_loss', 'training_accuracy'])
+    file_logger = FileLogger('log.tsv', ['step', 'training_loss', 'training_accuracy',
+                                         'testing_loss', 'testing_accuracy'])
     x = tf.placeholder('float32', [batch_size, 784, 2 if lstm_cell == PhasedLSTMCell else 1])
     y_ = tf.placeholder('float32', [batch_size, 10])
     initial_states = (tf.random_normal([batch_size, hidden_size], stddev=0.1),
@@ -42,13 +43,21 @@ def run_lstm_mnist(lstm_cell=BasicLSTMCell, hidden_size=32, batch_size=256, step
         t_x = np.expand_dims(_x_, axis=2)
         return t_x
 
+    test_images = mnist.test.images[0:256]
+    test_labels = mnist.test.labels[0:256]
+
     for i in range(steps):
         batch = mnist.train.next_batch(batch_size)
+
         st = time()
-        tr_loss, tr_acc, _ = sess.run([cross_entropy, accuracy, grad_update],
-                                      feed_dict={x: transform_x(batch[0]), y_: batch[1]})
+        tr_feed_dict = {x: transform_x(batch[0]), y_: batch[1]}
+        tr_loss, tr_acc, _ = sess.run([cross_entropy, accuracy, grad_update], feed_dict=tr_feed_dict)
+
+        te_feed_dict = {x: transform_x(test_images), y_: test_labels}
+        te_loss, te_acc = sess.run([cross_entropy, accuracy], feed_dict=te_feed_dict)
+
         print('Forward-Backward pass took {0:.2f}s to complete.'.format(time() - st))
-        file_logger.write([i, tr_loss, tr_acc])
+        file_logger.write([i, tr_loss, tr_acc, te_loss, te_acc])
 
     file_logger.close()
 

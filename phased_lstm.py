@@ -2,7 +2,6 @@ import tensorflow as tf
 from tensorflow.contrib.rnn import RNNCell
 from tensorflow.contrib.rnn.python.ops import core_rnn_cell
 from tensorflow.python.framework import dtypes
-from tensorflow.python.framework import ops
 from tensorflow.python.ops import array_ops
 from tensorflow.python.ops import init_ops
 from tensorflow.python.ops import random_ops
@@ -11,6 +10,7 @@ from tensorflow.python.ops.math_ops import sigmoid
 from tensorflow.python.ops.math_ops import tanh
 
 _linear = core_rnn_cell._linear
+
 
 def random_exp_initializer(minval=0, maxval=None, seed=None,
                            dtype=dtypes.float32):
@@ -32,6 +32,7 @@ def random_exp_initializer(minval=0, maxval=None, seed=None,
         return tf.exp(random_ops.random_uniform(shape, minval, maxval, dtype, seed=seed))
 
     return _initializer
+
 
 def phi(times, s, tau):
     # return tf.div(tf.mod(tf.mod(times - s, tau) + tau, tau), tau)
@@ -61,6 +62,7 @@ def time_gate_fast(phase, r_on, leak_rate, training_phase):
 
 
 class PhasedLSTMCell(RNNCell):
+
     def __init__(self, num_units, use_peepholes=True, training_phase=True,
                  leak_rate=0.001, r_on_init=0.05, tau_init=6., activation=tanh):
         self._num_units = num_units
